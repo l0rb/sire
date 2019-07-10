@@ -182,7 +182,7 @@ def _obtain_git_username(git, name):
     # first try: see if we can get a good response from our host
     request_params = {
         "shell": True,
-        "universal_newlines": True
+        "universal_newlines": True,
         stream: subprocess.PIPE,
     }
     result = subprocess.run(command, **request_params)
