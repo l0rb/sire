@@ -173,13 +173,20 @@ def _obtain_git_username(git, name):
     if git in {"github", "gitlab", "bitbucket"}:
         command = 'ssh -o "StrictHostKeyChecking=no" -T git@github.com'
         namefind = r"(?:Hi |logged in as |Welcome to GitLab, @)([a-zA-Z\d]{2,40})"
+        stream = "stderr"
+        if git in {"gitlab"}:
+            stream = "stdout"
     else:
         raise NotImplementedError(f"Git host {git} not implemented yet. Make an issue?")
 
     # first try: see if we can get a good response from our host
-    request_params = dict(shell=True, stderr=subprocess.PIPE, universal_newlines=True)
+    request_params = {
+        "shell": True,
+        "universal_newlines": True
+        stream: subprocess.PIPE,
+    }
     result = subprocess.run(command, **request_params)
-    match = re.search(namefind, result.stderr)
+    match = re.search(namefind, getattr(result, stream))
     if match:
         return match.group(1)
     # otherwise, see if our computer's username exists on the remote...imperfect
